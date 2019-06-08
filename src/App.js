@@ -14,31 +14,30 @@ class RenderGifs extends Component {
     }
   }
 
-  componentDidUpdate(){
-  }
-
   componentDidMount(){
     axios.get('http://api.giphy.com/v1/gifs/trending?api_key=' + apiKey)
       .then(res => {
-        console.log("response", res);
+        console.log("Loading trending gifs");
         let trendingArray = res.data.data;
-        let urlsOnly = trendingArray.map(({embed_url}) => embed_url);
+        let filtered = trendingArray.map(({images}) => images);
+        let imagesOnly = filtered.map(({original}) => original);
+        let urlsOnly = imagesOnly.map(({url}) => url);
         this.setState((state, props) => state.filterArray = urlsOnly);
         this.setState((state, props) => state.defaultArray = trendingArray);
       })
   }
 
   render(){
-    console.log("rendering", this.state.filterArray)
     return (
       <div>
-        <p>
-          {this.state.filterArray.map(url => <img src={url} alt={url} key={url} />)}
-        </p>
+        <ul id="imageList">
+          {this.state.filterArray.map(url => <li><img src={url} alt={url} key={url} /></li>)}
+        </ul>
       </div>
     );
   }
 }
+
 
 class App extends Component {
   constructor(props){
@@ -47,10 +46,21 @@ class App extends Component {
       inputArray: [],
       filterArray: []
     }
+    this.fetchGifs = this.fetchGifs.bind(this);
   }
 
   fetchGifs(searchTerm){
-    console.log(searchTerm)
+    let searchLink = "http://api.giphy.com/v1/gifs/search?q="+searchTerm+"&api_key="+apiKey;
+    console.log("Loading gifs that match: " + searchTerm);
+    axios.get(searchLink)
+      .then(res => {
+        let trendingArray = res.data.data;
+        let filtered = trendingArray.map(({images}) => images);
+        let imagesOnly = filtered.map(({original}) => original);
+        let urlsOnly = imagesOnly.map(({url}) => url);
+        this.setState((state, props) => state.filterArray = urlsOnly);
+        this.setState((state, props) => state.defaultArray = trendingArray);
+      })
   }
 
   render(){

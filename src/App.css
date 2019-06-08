@@ -6,3 +6,7 @@
   color: white;
   padding: 10px;
 }
+
+#imageList {
+  list-style-type: none;
+}
